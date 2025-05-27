@@ -46,7 +46,7 @@ fare_mapping <- data.frame(
     "Nassau or Westchester",
     "Negotiated fare",
     "Group ride",
-    "Null/unknown"
+    NA
   )
 )
 
@@ -58,12 +58,12 @@ payment_mapping <- data.frame(
     "Cash",
     "No charge",
     "Dispute",
-    "Unknown",
+    NA,
     "Voided trip"
   )
 )
 
-# Left join para todos los mapeos
+# Left join y elimino NA para todos los mapeos
 # Despues elimino las columnas de dirección
 
 taxis = left_join(taxis, vendor_mapping, by = 'VendorID')
@@ -77,6 +77,9 @@ taxis = taxis |> rename(payment_type = payment_description)
 
 taxi_zones = read_csv('taxi_zone_lookup.csv')
 taxi_zones = taxi_zones |> select(-service_zone)
+taxi_zones = taxi_zones |>
+  mutate(Borough = replace(Borough, Borough %in% c('N/A', 'Unknown'), NA)) |>
+  mutate(Zone = replace(Zone, Zone %in% c('N/A', 'Unknown'), NA))
 
 taxis = left_join(taxis, taxi_zones, by = join_by('PULocationID' == 'LocationID'))
 taxis = left_join(taxis, taxi_zones, by = join_by('DOLocationID' == 'LocationID'))
