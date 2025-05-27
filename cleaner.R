@@ -1,0 +1,91 @@
+library(arrow)
+library(tidyverse)
+
+taxis = read_parquet("yellow_tripdata_2025-03.parquet")
+
+# Filtro:
+#   Viajes entre 0 y 100 millas
+#   Tarifa > a U$S 0
+#   RatecodeID = 99 (NULL/UNKNOWN) -> NA
+#   Evito numero de pasajeros = 0
+#   Elimino todas las filas con NA
+#   Sampleo en 1/10 n filas
+
+taxis = taxis |>
+  filter(trip_distance > 0,
+         trip_distance < 100,
+         total_amount > 0,
+         passenger_count > 0) |>
+  mutate(RatecodeID = replace(RatecodeID, RatecodeID == 99, NA)) |>
+  drop_na() |>
+  sample_n(nrow(taxis) / 10)
+
+# Mapeos de variables con ID:
+#   Compañia (VendorID)
+#   Tipo de tarifa (RatecodeID)
+#   Tipo de pago (payment_type)
+#   Ubicacion de arribo y llegada, por zona (PULocation y DOLoaction)
+# Source: https://www.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf
+
+vendor_mapping <- data.frame(
+  VendorID = c(1, 2, 6, 7),
+  Vendor = c(
+    "Creative Mobile Technologies, LLC",
+    "Curb Mobility, LLC",
+    "Myle Technologies Inc",
+    "Helix"
+  )
+)
+
+fare_mapping <- data.frame(
+  RatecodeID = c(1, 2, 3, 4, 5, 6, 99),
+  RatecodeDescription = c(
+    "Standard rate",
+    "JFK",
+    "Newark",
+    "Nassau or Westchester",
+    "Negotiated fare",
+    "Group ride",
+    "Null/unknown"
+  )
+)
+
+payment_mapping <- data.frame(
+  payment_type = c(0, 1, 2, 3, 4, 5, 6),
+  payment_description = c(
+    "Flex Fare trip",
+    "Credit card",
+    "Cash",
+    "No charge",
+    "Dispute",
+    "Unknown",
+    "Voided trip"
+  )
+)
+
+# Left join para todos los mapeos
+# Despues elimino las columnas de dirección
+
+taxis = left_join(taxis, vendor_mapping, by = 'VendorID')
+taxis = left_join(taxis, fare_mapping, by = 'RatecodeID')
+taxis = left_join(taxis, payment_mapping, by = 'payment_type')
+taxis = taxis |> select(-VendorID, -RatecodeID, -payment_type)
+taxis = taxis |> rename(payment_type = payment_description)
+
+# Referencias de https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv
+# Todas las zonas mapeadas, elimino la zona de servicio (siempre es Yellow)
+
+taxi_zones = read_csv('taxi_zone_lookup.csv')
+taxi_zones = taxi_zones |> select(-service_zone)
+
+taxis = left_join(taxis, taxi_zones, by = join_by('PULocationID' == 'LocationID'))
+taxis = left_join(taxis, taxi_zones, by = join_by('DOLocationID' == 'LocationID'))
+# Organizando las ubicaciones y limpio los indices
+taxis = taxis |> rename(PUBorough = Borough.x,
+                        PUZone = Zone.x,
+                        DOBorough = Borough.y,
+                        DOZone = Zone.y)
+taxis = taxis |> select(-PULocationID, -DOLocationID)
+
+# Guardado a .csv
+write_csv(taxis, 'taxis.csv')
