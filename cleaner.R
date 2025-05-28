@@ -91,11 +91,13 @@ taxis = taxis |> rename(PUBorough = Borough.x,
 taxis = taxis |> select(-PULocationID, -DOLocationID)
 
 # Calculando la duración del viaje restando la llegada
+# Limpieza de viajes de duración 0 mins
 taxis = taxis |>
   mutate(trip_duration = as.integer(difftime(
     tpep_dropoff_datetime, 
     tpep_pickup_datetime, 
     units = "mins")))
+taxis = taxis |> filter(trip_duration > 0)
 
 # Guardado a .csv
 write_csv(taxis, 'taxis.csv')
