@@ -101,3 +101,22 @@ taxis |>
   labs(title = 'Zonas más caras y más baratas para pedir un taxi',
        x = '',
        y = 'Tarifa promedio')
+
+# La duración del viaje afecta a la tarifa según la distancia?
+taxis |> 
+  filter(trip_duration < 120 & trip_duration > 0) |>
+  ggplot()+
+  geom_point(aes(x = trip_distance, 
+                 y = total_amount, 
+                 color = trip_duration),
+             alpha = 0.5,
+             na.rm = TRUE)+
+  scale_color_gradientn(colors = c('orange', 'red', "purple"))+
+  labs(title = 'Distribución del precio por viaje según la distancia',
+       x = 'Distancia del viaje [millas]',
+       y = 'Tarifa [U$S]',
+       color = 'Duración del viaje')+
+  ylim(0, 300)+
+  xlim(0, 50)+
+  theme_minimal()
+# Se logra apreciar una relación mínima
