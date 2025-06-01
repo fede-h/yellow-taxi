@@ -3,23 +3,6 @@ library(tidyverse)
 
 taxis = read_parquet("yellow_tripdata_2025-03.parquet")
 
-# Filtro:
-#   Viajes entre 0 y 100 millas
-#   Tarifa > a U$S 0
-#   RatecodeID = 99 (NULL/UNKNOWN) -> NA
-#   Evito numero de pasajeros = 0
-#   Elimino todas las filas con NA
-#   Sampleo en 1/10 n filas
-
-taxis = taxis |>
-  filter(trip_distance > 0,
-         trip_distance < 100,
-         total_amount > 0,
-         passenger_count > 0) |>
-  mutate(RatecodeID = replace(RatecodeID, RatecodeID == 99, NA)) |>
-  drop_na() |>
-  sample_n(nrow(taxis) / 10)
-
 # Mapeos de variables con ID:
 #   Compañia (VendorID)
 #   Tipo de tarifa (RatecodeID)
@@ -98,6 +81,28 @@ taxis = taxis |>
     tpep_pickup_datetime, 
     units = "mins")))
 taxis = taxis |> filter(trip_duration > 0)
+
+# Filtro:
+#   Viajes entre 0 y 100 millas
+#   Tarifa > a U$S 0
+#   RatecodeID = 99 (NULL/UNKNOWN) -> NA
+#   Evito numero de pasajeros = 0
+#   Elimino todas las filas con NA
+#   Sampleo en 1/10 n filas
+
+taxis = taxis |>
+  filter(trip_distance > 0,
+         trip_duration > 0,
+         total_amount > 0,
+         passenger_count > 0,
+         PUBorough %in% c('Manhattan', 'Queens', 'Brooklyn'),
+         PUBorough == DOBorough)
+
+
+# Sampleo 400000 observaciones 
+taxis = taxis  |> 
+  drop_na() |>
+  sample_n(400000)
 
 # Guardado a .csv
 write_csv(taxis, 'taxis.csv')

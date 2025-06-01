@@ -1,5 +1,6 @@
 library(tidyverse)
 library(forcats)
+library(lubridate)
 
 taxis = read_csv('taxis.csv')
 
@@ -120,3 +121,54 @@ taxis |>
   xlim(0, 50)+
   theme_minimal()
 # Se logra apreciar una relación mínima
+
+# Tarifa total en relación a la distancia del viaje
+ggplot(taxis)+
+  geom_point(aes(x = trip_distance, 
+                 y = total_amount, 
+                 color = PUBorough),
+             alpha = 0.5,
+             na.rm = TRUE)+
+  labs(title = 'Distribución del precio por viaje según la distancia',
+       x = 'Distancia del viaje [millas]',
+       y = 'Tarifa [U$S]',
+       color = 'Zona de salida')+
+  ylim(0, 300)+
+  xlim(0, 50)+
+  theme_minimal()+
+  facet_wrap(~PUBorough)
+# Podemos ver una relacion entre el aumento de la distancia
+# y la tarifa correspondiente
+# Aunque las relaciones varian mucho2
+
+# Analizando precios en dias habiles vs fin de semana
+taxis_dias = taxis |>
+  group_by(wday(tpep_pickup_datetime, week_start = 1)) |>
+  rename(weekday = `wday(tpep_pickup_datetime, week_start = 1)`) |>
+  mutate(es_habil = ifelse(weekday > 6, 'Fin de semana', 'Dias hábiles')) |>
+  ungroup()
+
+costo_por_hora_dias = taxis_dias |> 
+  group_by(hour(tpep_pickup_datetime), es_habil) |>
+  summarise(costo = median(total_amount), cantidad = n()) |>
+  arrange(desc(costo)) |>
+  rename(hora = `hour(tpep_pickup_datetime)`)
+
+ggplot(costo_por_hora_dias)+
+  geom_col(aes(x = hora, y = cantidad, fill = costo))+
+  scale_fill_gradientn(colors = c("darkgreen", "yellow", "red"))+
+  labs(title = 'Cantidad y costo de viajes por hora',
+       x = 'Hora del día',
+       y = 'Cantidad de viajes',
+       fill = 'Costo promedio del viaje')+
+  facet_wrap(~es_habil)
+
+# Hay barrios con distribuciones mayores o menores de los costos?
+ggplot(taxis)+
+  geom_density(aes(x = total_amount, fill = PUBorough), alpha = 0.5)+
+  xlim(0, 100)+
+  labs(title = 'Densidad de precios según el barrio',
+       x = 'Precio de la tarifa',
+       y = 'Densidad',
+       fill = 'Barrio')+
+  theme_minimal()
