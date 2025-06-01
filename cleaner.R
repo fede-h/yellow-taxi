@@ -91,9 +91,9 @@ taxis = taxis |> filter(trip_duration > 0)
 #   Sampleo en 1/10 n filas
 
 taxis = taxis |>
-  filter(trip_distance > 0,
-         trip_duration > 0,
-         total_amount > 0,
+  filter(0 < trip_distance, trip_distance < 40,
+         0 < trip_duration, trip_duration < 120,
+         total_amount > 0, total_amount < 200,
          passenger_count > 0,
          PUBorough %in% c('Manhattan', 'Queens', 'Brooklyn'),
          PUBorough == DOBorough)
