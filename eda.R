@@ -18,8 +18,9 @@ ggplot(taxis)+
        x = 'Distancia del viaje [millas]',
        y = 'Tarifa [U$S]',
        color = 'Barrio')+
-  #xlim(0, 30)+
-  scale_color_manual(values = c('#094D92', '#F46036', '#32E875'))+
+  xlim(0, 30)+
+  ylim(0, 150)+
+  scale_color_manual(values = c('#1e96fc', 'yellow', '#df00ff'))+
   theme_minimal()+
   dark_mode()
 # Podemos ver una relacion entre el aumento de la distancia
@@ -36,7 +37,7 @@ costo_por_hora = taxis |>
 # Entendiendo el costo por hora y la cantidad de viajes
 ggplot(costo_por_hora)+
   geom_col(aes(x = hora, y = cantidad, fill = costo))+
-  scale_fill_gradientn(colors = c("darkgreen", "yellow", "red"))+
+  scale_fill_gradientn(colors = c('white', 'yellow','darkorange'))+
   labs(title = 'Densidad de viajes por hora',
        x = 'Hora del día',
        y = 'Cantidad de viajes',
@@ -60,7 +61,7 @@ ggplot(taxis, aes(x = trip_duration,
        x = 'Duración del viaje [minutos]',
        y = 'Tarifa [U$S]',
        color = 'Distancia [millas]')+
-  scale_color_gradientn(colors = c("darkgreen", "yellow", "red"))+
+  scale_color_gradientn(colors = c('white', "yellow", 'orange', "darkorange", 'darkorange'))+
   dark_mode()
 
 
@@ -85,8 +86,8 @@ taxis |>
                y = promedio_tarifa,
                fill = promedio_tarifa),
            na.rm = T, show.legend = F)+
-  geom_vline(xintercept = 5.5, linetype = "dashed", size = 0.75) +
-  scale_fill_gradientn(colors = c('green', 'yellow', "red"))+
+  geom_vline(xintercept = 6.5, linetype = "dashed", size = 0.75) +
+  scale_fill_gradientn(colors = c('yellow', 'orange', 'darkorange'))+
   coord_flip()+
   labs(title = 'Zonas más caras y más baratas para pedir un taxi',
        x = '',
@@ -109,7 +110,7 @@ costo_por_hora_dias = taxis_dias |>
 
 ggplot(costo_por_hora_dias)+
   geom_col(aes(x = hora, y = cantidad, fill = costo))+
-  scale_fill_gradientn(colors = c("darkgreen", "yellow", "red"))+
+  scale_fill_gradientn(colors = c("lightyellow", "yellow", "darkorange"))+
   labs(title = 'Cantidad y costo de viajes por hora',
        x = 'Hora del día',
        y = 'Cantidad de viajes',
@@ -125,4 +126,5 @@ ggplot(taxis)+
        x = 'Precio de la tarifa',
        y = 'Densidad',
        fill = 'Barrio')+
+  scale_fill_manual(values = c('#1e96fc', 'yellow', '#df00ff'))+
   dark_mode()
