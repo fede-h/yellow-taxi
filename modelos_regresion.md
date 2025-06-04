@@ -1,4 +1,6 @@
-# Modelo 1
+Comparación de modelos lineales con complejidad creciente:
+
+## Modelo 1
 
 ```
 Call:
@@ -21,7 +23,7 @@ Multiple R-squared:  0.8508,	Adjusted R-squared:  0.8508
 F-statistic: 1.141e+06 on 2 and 399997 DF,  p-value: < 2.2e-16
 ```
 
-# Modelo 2
+## Modelo 2
 
 ```
 Call:
@@ -47,7 +49,7 @@ Multiple R-squared:  0.8521,	Adjusted R-squared:  0.8521
 F-statistic: 5.762e+05 on 4 and 399995 DF,  p-value: < 2.2e-16
 ```
 
-# Modelo 3
+## Modelo 3
 
 ```
 Call:
@@ -84,3 +86,21 @@ Residual standard error: 3.412 on 399972 degrees of freedom
 Multiple R-squared:  0.8596,	Adjusted R-squared:  0.8596 
 F-statistic: 9.073e+04 on 27 and 399972 DF,  p-value: < 2.2e-16
 ```
+
+## ANOVA
+
+```
+Analysis of Variance Table
+
+Model 1: total_amount ~ trip_distance + trip_duration
+Model 2: total_amount ~ trip_distance + trip_duration + PUBorough
+Model 3: total_amount ~ trip_distance + trip_duration + PUBorough + factor(hour)
+  Res.Df     RSS Df Sum of Sq       F    Pr(>F)    
+1 399997 4947484                                   
+2 399995 4905142  2     42342 1818.85 < 2.2e-16 ***
+3 399972 4655539 23    249603  932.36 < 2.2e-16 ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+```
+
