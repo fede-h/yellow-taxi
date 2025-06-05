@@ -114,15 +114,16 @@ F-statistic: 9.073e+04 on 27 and 399972 DF,  p-value: < 2.2e-16
 ```
 Analysis of Variance Table
 
-Model 1: total_amount ~ trip_distance + trip_duration
-Model 2: total_amount ~ trip_distance + trip_duration + PUBorough
-Model 3: total_amount ~ trip_distance + trip_duration + PUBorough + factor(hour)
-  Res.Df     RSS Df Sum of Sq       F    Pr(>F)    
-1 399997 4947484                                   
-2 399995 4905142  2     42342 1818.85 < 2.2e-16 ***
-3 399972 4655539 23    249603  932.36 < 2.2e-16 ***
+Model 1: total_amount ~ trip_distance
+Model 2: total_amount ~ trip_distance + trip_duration
+Model 3: total_amount ~ trip_distance + trip_duration + PUBorough
+Model 4: total_amount ~ trip_distance + trip_duration + PUBorough + factor(hour)
+  Res.Df     RSS Df Sum of Sq         F    Pr(>F)    
+1 399998 8491740                                     
+2 399997 4947484  1   3544256 304498.17 < 2.2e-16 ***
+3 399995 4905142  2     42342   1818.85 < 2.2e-16 ***
+4 399972 4655539 23    249603    932.36 < 2.2e-16 ***
 ---
-Signif. codes:  
-0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 ```
 
