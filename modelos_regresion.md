@@ -1,6 +1,6 @@
 Comparación de modelos lineales con complejidad creciente:
 
-## Modelo 2
+## Modelo 0
 
 ```
 Call:
