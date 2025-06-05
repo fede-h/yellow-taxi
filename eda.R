@@ -43,6 +43,14 @@ ggplot(costo_por_hora)+
        y = 'Cantidad de viajes',
        fill = 'Costo promedio del viaje')+
   dark_mode()
+# Aislando la mediana del costo para cada hora
+ggplot(costo_por_hora)+
+  geom_col(aes(x = hora, y = costo), fill = 'yellow', width = 0.5, alpha = 0.8)+
+  labs(title = 'Mediana de costo para cada hora del día',
+       x = 'Hora del día',
+       y = 'Precio [U$S]')+
+  coord_cartesian(ylim = c(16, 22))+
+  dark_mode()
 
 
 # El tipo de pago está relacionado a mayores propinas?
@@ -122,7 +130,7 @@ ggplot(costo_por_hora_dias)+
 ggplot(taxis)+
   geom_density(aes(x = total_amount, fill = PUBorough), alpha = 0.75, color = 'black')+
   xlim(0, 100)+
-  labs(title = 'Densidad de precios según borough',
+  labs(title = 'Densidad de viajes según borough',
        x = 'Precio de la tarifa',
        y = 'Densidad',
        fill = 'Barrio')+

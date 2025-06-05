@@ -1,5 +1,27 @@
 Comparación de modelos lineales con complejidad creciente:
 
+## Modelo 2
+
+```
+Call:
+lm(formula = total_amount ~ trip_distance, data = taxis)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-92.398  -2.532  -0.557   1.884 161.951 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   12.426497   0.011265    1103   <2e-16 ***
+trip_distance  4.753340   0.004409    1078   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.608 on 399998 degrees of freedom
+Multiple R-squared:  0.744,	Adjusted R-squared:  0.744 
+F-statistic: 1.162e+06 on 1 and 399998 DF,  p-value: < 2.2e-16
+```
+
 ## Modelo 1
 
 ```
