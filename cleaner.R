@@ -82,13 +82,8 @@ taxis = taxis |>
     units = "mins")))
 taxis = taxis |> filter(trip_duration > 0)
 
-# Filtro:
-#   Viajes entre 0 y 100 millas
-#   Tarifa > a U$S 0
-#   RatecodeID = 99 (NULL/UNKNOWN) -> NA
-#   Evito numero de pasajeros = 0
-#   Elimino todas las filas con NA
-#   Sampleo en 1/10 n filas
+# Filtro VIAJES INTRAZONALES
+# y que no sean hasta aeropuertos (U$S70 fijos)
 
 taxis = taxis |>
   filter(0 < trip_distance, trip_distance < 40,
@@ -96,7 +91,8 @@ taxis = taxis |>
          total_amount > 0, total_amount < 200,
          passenger_count > 0,
          PUBorough %in% c('Manhattan', 'Queens', 'Brooklyn'),
-         PUBorough == DOBorough)
+         PUBorough == DOBorough,
+         !(str_detect(PUZone, 'Airport') | str_detect(DOZone, 'Airport')))
 
 
 # Sampleo 400000 observaciones 

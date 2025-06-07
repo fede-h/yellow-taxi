@@ -6,10 +6,10 @@ library(ggdark)
 taxis = read_csv('taxis.csv')
 
 
-# Tarifa total en relación a la distancia del viaje
+# Tarifa total en relación a la distancia del viaje (sin adicionales)
 ggplot(taxis)+
   geom_point(aes(x = trip_distance, 
-                 y = total_amount, 
+                 y = fare_amount, 
                  color = PUBorough),
              size = 0.5,
              alpha = 0.5,
@@ -18,39 +18,36 @@ ggplot(taxis)+
        x = 'Distancia del viaje [millas]',
        y = 'Tarifa [U$S]',
        color = 'Barrio')+
-  xlim(0, 30)+
-  ylim(0, 150)+
-  scale_color_manual(values = c('#1e96fc', 'yellow', '#df00ff'))+
-  theme_minimal()+
-  dark_mode()
+  xlim(0, 25)+
+  ylim(0, 120)+
+  scale_color_manual(values = c('red', 'salmon', 'darkblue'))+
+  theme_minimal()
 # Podemos ver una relacion entre el aumento de la distancia
 # y la tarifa correspondiente
-# Aunque las relaciones varian mucho2
+# Aunque las relaciones varian mucho
 
 
 # Promedio de precio por hora
 costo_por_hora = taxis |> 
   group_by(hour(tpep_pickup_datetime)) |>
-  summarise(costo = median(total_amount), cantidad = n()) |>
+  summarise(costo = mean(fare_amount), cantidad = n()) |>
   arrange(desc(costo)) |>
   rename(hora = `hour(tpep_pickup_datetime)`)
 # Entendiendo el costo por hora y la cantidad de viajes
 ggplot(costo_por_hora)+
   geom_col(aes(x = hora, y = cantidad, fill = costo))+
-  scale_fill_gradientn(colors = c('white', 'yellow','darkorange'))+
+  scale_fill_gradientn(colors = c('salmon', 'purple', 'blue'))+
   labs(title = 'Densidad de viajes por hora',
        x = 'Hora del día',
        y = 'Cantidad de viajes',
-       fill = 'Costo promedio del viaje')+
-  dark_mode()
+       fill = 'Costo promedio del viaje')
 # Aislando la mediana del costo para cada hora
 ggplot(costo_por_hora)+
-  geom_col(aes(x = hora, y = costo), fill = 'yellow', width = 0.5, alpha = 0.8)+
-  labs(title = 'Mediana de costo para cada hora del día',
+  geom_col(aes(x = hora, y = costo), fill = 'blue', width = 0.75)+
+  labs(title = 'Media de costo para cada hora del día',
        x = 'Hora del día',
        y = 'Precio [U$S]')+
-  coord_cartesian(ylim = c(16, 22))+
-  dark_mode()
+  coord_cartesian(ylim = c(12, 15))
 
 
 # El tipo de pago está relacionado a mayores propinas?
@@ -62,28 +59,27 @@ taxis |>
 
 # Cómo afecta la duración del viaje a la tarifa final?
 ggplot(taxis, aes(x = trip_duration, 
-                  y = total_amount, 
+                  y = fare_amount, 
                   color = trip_distance))+
   geom_point(na.rm = T, alpha = 0.5)+
   labs(title = 'Distribución del precio por viaje según la duración',
        x = 'Duración del viaje [minutos]',
        y = 'Tarifa [U$S]',
        color = 'Distancia [millas]')+
-  scale_color_gradientn(colors = c('white', "yellow", 'orange', "darkorange", 'darkorange'))+
-  dark_mode()
+  scale_color_gradientn(colors = c('salmon', 'purple', 'blue', 'blue'))
 
 
 # Hay una relación entre el día de la semana y la tarifa?
 taxis |>
   group_by(weekdays(tpep_pickup_datetime)) |>
-  summarise(median(total_amount), mean(total_amount))
+  summarise(median(fare_amount), mean(fare_amount))
 # No hay una relación clara
 
 
 # Hay "zonas premium" donde la tarifa valga más?
 taxis |>
   group_by(PUZone) |>
-  summarise(promedio_tarifa = median(total_amount), viajes = n()) |>
+  summarise(promedio_tarifa = median(fare_amount), viajes = n()) |>
   filter(viajes > 50) |>
   mutate(rango_tarifa = case_when(
       promedio_tarifa < 15.25 ~ "Mas baratas",
@@ -95,12 +91,11 @@ taxis |>
                fill = promedio_tarifa),
            na.rm = T, show.legend = F)+
   geom_vline(xintercept = 6.5, linetype = "dashed", size = 0.75) +
-  scale_fill_gradientn(colors = c('yellow', 'orange', 'darkorange'))+
+  scale_fill_gradientn(colors = c('salmon', 'purple', 'blue'))+
   coord_flip()+
   labs(title = 'Zonas más caras y más baratas para pedir un taxi',
        x = '',
-       y = 'Tarifa promedio')+
-  dark_mode()
+       y = 'Tarifa promedio')
 
 
 # Analizando precios en dias habiles vs fin de semana
@@ -112,27 +107,26 @@ taxis_dias = taxis |>
 
 costo_por_hora_dias = taxis_dias |> 
   group_by(hour(tpep_pickup_datetime), es_habil) |>
-  summarise(costo = median(total_amount), cantidad = n()) |>
+  summarise(costo = median(fare_amount), cantidad = n()) |>
   arrange(desc(costo)) |>
   rename(hora = `hour(tpep_pickup_datetime)`)
 
 ggplot(costo_por_hora_dias)+
   geom_col(aes(x = hora, y = cantidad, fill = costo))+
-  scale_fill_gradientn(colors = c("lightyellow", "yellow", "darkorange"))+
+  scale_fill_gradientn(colors = c("salmon", "purple", "blue"))+
   labs(title = 'Cantidad y costo de viajes por hora',
        x = 'Hora del día',
        y = 'Cantidad de viajes',
        fill = 'Costo promedio del viaje')+
-  facet_wrap(~es_habil)+
-  dark_mode()
+  facet_wrap(~es_habil)
+
 
 # Hay barrios con distribuciones mayores o menores de los costos?
 ggplot(taxis)+
-  geom_density(aes(x = total_amount, fill = PUBorough), alpha = 0.75, color = 'black')+
+  geom_density(aes(x = fare_amount, fill = PUBorough), alpha = 0.75, color = 'black')+
   xlim(0, 100)+
   labs(title = 'Densidad de viajes según borough',
        x = 'Precio de la tarifa',
        y = 'Densidad',
        fill = 'Barrio')+
-  scale_fill_manual(values = c('#1e96fc', 'yellow', '#df00ff'))+
-  dark_mode()
+  scale_fill_manual(values = c('salmon', 'purple', 'blue'))
