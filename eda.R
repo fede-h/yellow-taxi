@@ -11,9 +11,11 @@ ggplot(taxis)+
   geom_point(aes(x = trip_distance, 
                  y = fare_amount, 
                  color = PUBorough),
-             size = 0.5,
              alpha = 0.5,
              na.rm = TRUE)+
+  geom_smooth(aes(x = trip_distance, y = fare_amount),
+              method = lm,
+              color = 'black')+
   labs(title = 'Distribución del precio por viaje según la distancia',
        x = 'Distancia del viaje [millas]',
        y = 'Tarifa [U$S]',
@@ -62,6 +64,8 @@ ggplot(taxis, aes(x = trip_duration,
                   y = fare_amount, 
                   color = trip_distance))+
   geom_point(na.rm = T, alpha = 0.5)+
+  geom_smooth(method = lm,
+              color = 'black')+ 
   labs(title = 'Distribución del precio por viaje según la duración',
        x = 'Duración del viaje [minutos]',
        y = 'Tarifa [U$S]',
@@ -82,8 +86,8 @@ taxis |>
   summarise(promedio_tarifa = median(fare_amount), viajes = n()) |>
   filter(viajes > 50) |>
   mutate(rango_tarifa = case_when(
-      promedio_tarifa < 15.25 ~ "Mas baratas",
-      promedio_tarifa >= 35 ~ "Mas caras")) |>
+      promedio_tarifa < 10.5 ~ "Mas baratas",
+      promedio_tarifa >= 20 ~ "Mas caras")) |>
   filter(rango_tarifa %in% c('Mas baratas', 'Mas caras')) |>
   ggplot() +
   geom_col(aes(x = fct_reorder(PUZone, desc(promedio_tarifa)), 
@@ -123,10 +127,13 @@ ggplot(costo_por_hora_dias)+
 
 # Hay barrios con distribuciones mayores o menores de los costos?
 ggplot(taxis)+
-  geom_density(aes(x = fare_amount, fill = PUBorough), alpha = 0.75, color = 'black')+
+  geom_density(aes(x = fare_amount, fill = PUBorough), 
+               bw = 7.5,
+               alpha = 0.75)+
   xlim(0, 100)+
   labs(title = 'Densidad de viajes según borough',
        x = 'Precio de la tarifa',
        y = 'Densidad',
        fill = 'Barrio')+
   scale_fill_manual(values = c('salmon', 'purple', 'blue'))
+

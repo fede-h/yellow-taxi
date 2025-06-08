@@ -1,6 +1,7 @@
 library(tidyverse)
 library(modelr)
-library(ggdark)
+library(dotwhisker)
+library(modelsummary)
 
 taxis = read_csv('taxis.csv')
 
@@ -42,9 +43,11 @@ summary(mod3)
 # un viaje a las 17hs es 1,13 dólares más caro
 # que un viaje a las 00hs (referencia)
 
+
 anova(mod0, mod1, mod2, mod3)
 # El P valor es < 2.2e-16 para todos los modelos 
 # más complejos que el anterior
+
 
 # Con el gráfico de los residuos no vemos patrones extraños
 # que nos sugieran usar otro tipo de modelo
@@ -55,8 +58,12 @@ taxis_res = taxis |>
 
 ggplot(taxis_res, aes(x = pred, y = resid))+
   geom_point(alpha = 0.3, color = 'blue')+
-  geom_hline(yintercept = 0)+
-  geom_hline(yintercept = 25)
+  geom_hline(yintercept = 0, linetype = 2)+
+  ylim(-50, 90)+
+  xlim(0, 90)+
+  labs(title = 'Residuos del modelo 3',
+       x = 'Predicción',
+       y = 'Residual')
 
 # Cómo podemos explicar los residuos divergentes cerca de 0?
 residuos = taxis |>
@@ -82,3 +89,29 @@ residuos |>
 # Los residuos elevados se deben a los viajes
 # desde o hasta los aeropuertos
 # se procede a filtrar los viajes correspondientes
+
+
+# Forest plot de los modelos
+df_int <- bind_rows(
+  tidy(mod0) %>% filter(term == "(Intercept)") %>% mutate(model = "M0"),
+  tidy(mod1) %>% filter(term == "(Intercept)") %>% mutate(model = "M1"),
+  tidy(mod2) %>% filter(term == "(Intercept)") %>% mutate(model = "M2"),
+  tidy(mod3) %>% filter(term == "(Intercept)") %>% mutate(model = "M3")
+)
+
+rse_df <- tibble(
+  model = c("M0", "M1", "M2", "M3"),
+  rse = c(sigma(mod0), sigma(mod1), sigma(mod2), sigma(mod3))
+)
+
+df_plot <- inner_join(df_int, rse_df, by = "model") %>%
+  mutate(ymin = estimate - rse, ymax = estimate + rse)
+
+ggplot(df_plot, aes(x = model, y = estimate, ymin = ymin, ymax = ymax)) +
+  geom_pointrange() +
+  coord_flip() +
+  labs(
+    x = "",
+    y = "Intercepto",
+    title = "Interceptos + Error estándar residual (RSE)"
+  )

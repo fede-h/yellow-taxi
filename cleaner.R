@@ -92,7 +92,8 @@ taxis = taxis |>
          passenger_count > 0,
          PUBorough %in% c('Manhattan', 'Queens', 'Brooklyn'),
          PUBorough == DOBorough,
-         !(str_detect(PUZone, 'Airport') | str_detect(DOZone, 'Airport')))
+         !(fare_amount == 70)
+         )
 
 
 # Sampleo 400000 observaciones 
